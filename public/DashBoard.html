@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Team Leader Dashboard</title>
+</head>
+<body class="bg-gray-100 font-sans">
+  <!-- Navbar -->
+  <header class="bg-black text-white py-4 px-6 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Team Leader Dashboard</h1>
+    <nav class="space-x-6">
+      <a href="#" class="hover:text-gray-300">Home</a>
+      <a href="#" class="hover:text-gray-300">Agents</a>
+      <a href="#" class="hover:text-gray-300">Profile</a>
+      <a href="#" class="hover:text-gray-300">Logout</a>
+    </nav>
+  </header>
+
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-1/4 bg-gray-800 text-white p-6 space-y-6">
+      <h2 class="text-lg font-bold">Dashboard Menu</h2>
+      <nav class="space-y-4">
+        <button class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded" onclick="showSection('call-recordings')">Call Recordings</button>
+        <button class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded" onclick="showSection('create-agent')">Create Agent Profile</button>
+      </nav>
+    </aside>
+
+    <main class="flex-1 p-6 bg-white overflow-y-auto">
+      <!-- Call Recordings Section -->
+      <section id="call-recordings" class="hidden">
+        <h2 class="text-2xl font-bold mb-4">Call Recordings</h2>
+        
+        <!-- Search & Filters -->
+        <div class="mb-4 flex space-x-4">
+          <input type="text" placeholder="Search agent..." class="border px-4 py-2 rounded w-1/3" id="searchBox">
+          <select class="border px-4 py-2 rounded" id="filterRating">
+            <option value="">Filter by Rating</option>
+            <option value="5">5+</option>
+            <option value="7">7+</option>
+            <option value="9">9+</option>
+          </select>
+        </div>
+        
+        <div class="flex justify-center items-center h-full mt-10">
+          <p class="text-xl font-semibold text-gray-700">No calls recorded yet</p>
+      </div>
+      
+      </section>
+
+      <!-- Create Agent Profile Section -->
+      <section id="create-agent" class="hidden">
+        <h2 class="text-2xl font-bold mb-4">Create Agent Profile</h2>
+        <form class="space-y-6 bg-gray-50 p-6 shadow-md rounded-md">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Full Name</label>
+            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-md" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Employee Code</label>
+            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-md" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-md" required>
+          </div>
+          <button type="submit" class="bg-black text-white py-2 px-4 rounded hover:bg-gray-800">Create Profile</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function showSection(sectionId) {
+      document.querySelectorAll("main > section").forEach(section => section.classList.add("hidden"));
+      document.getElementById(sectionId).classList.remove("hidden");
+    }
+
+    function togglePlay(icon) {
+      icon.innerText = icon.innerText === "▶" ? "⏸" : "▶";
+    }
+
+    function generateTableData() {
+      const agents = [
+        { name: "John Doe", account: "12345", rating: Math.floor(Math.random() * 11) },
+        { name: "Jane Smith", account: "67890", rating: Math.floor(Math.random() * 11) },
+        { name: "Emily White", account: "11223", rating: Math.floor(Math.random() * 11) }
+      ];
+      
+      const tbody = document.getElementById("callTableBody");
+      tbody.innerHTML = "";
+      agents.forEach(agent => {
+        const row = `<tr>
+          <td class='border px-4 py-2'>${agent.name}</td>
+          <td class='border px-4 py-2'>${agent.account}</td>
+          <td class='border px-4 py-2 text-center'>
+            <button onclick='togglePlay(this)' class='text-xl'>▶</button>
+          </td>
+          <td class='border px-4 py-2 text-center'>${agent.rating}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+    
+    window.onload = generateTableData;
+  </script>
+</body>
+</html>

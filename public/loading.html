@@ -1,0 +1,29 @@
+<!-- /public/loading.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+        // Redirect after 2 seconds
+        setTimeout(function(){
+            window.location.href = '/chat';
+        }, 2000);
+    </script>
+</head>
+<body class="flex justify-center items-center h-screen bg-black text-white">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold mb-4">Redirecting to Chat App...</h1>
+        <p>Please wait, you are being redirected.</p>
+        <!-- Optional loading spinner -->
+        <div class="mt-4">
+            <svg class="animate-spin h-12 w-12 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0115.743-4.243A7.972 7.972 0 0120 12a8 8 0 01-15.743 4.243A7.972 7.972 0 014 12z"></path>
+            </svg>
+        </div>
+    </div>
+</body>
+</html>

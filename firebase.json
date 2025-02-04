@@ -1,0 +1,39 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/login",
+        "destination": "/login.html"
+      },
+      {
+        "source": "/chat",
+        "destination": "/home.html"
+      },
+      {
+        "source": "/manager/createAgent",
+        "destination": "/createAgent.html"
+      },
+      {
+        "source": "/manager/callRecords",
+        "destination": "/callRecords.html"
+      },
+      {
+        "source": "/api/**",
+        "function": "app"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": {
+    "source": "functions"
+  }
+}
