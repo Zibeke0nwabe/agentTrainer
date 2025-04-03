@@ -1,36 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Training Coming Soon</title>
-    <!-- Tailwind CSS and FontAwesome -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <title>Agent Trainer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script defer>
+        let timers = {};
+        let currentState = "Available";
+        let seconds = 0;
+
+        function formatTime(sec) {
+            let hrs = Math.floor(sec / 3600).toString().padStart(2, "0");
+            let mins = Math.floor((sec % 3600) / 60).toString().padStart(2, "0");
+            let secs = (sec % 60).toString().padStart(2, "0");
+            return `${hrs}:${mins}:${secs}`;
+        }
+
+        function startTimer(state) {
+            clearInterval(timers[state]);
+            seconds = 0;
+            const timerElement = document.getElementById(`status-timer-${state}`);
+            if (timerElement) {
+                timerElement.innerText = "00:00:00";
+                timers[state] = setInterval(() => {
+                    seconds++;
+                    timerElement.innerText = formatTime(seconds);
+                }, 1000);
+            }
+        }
+
+        function stopTimer(state) {
+            clearInterval(timers[state]);
+        }
+
+        function setStatus() {
+            const newStatus = document.getElementById("status-select").value;
+            const statusText = document.getElementById("current-status");
+            const leftSection = document.getElementById("left-section");
+            const statusDiv = document.querySelector(".flex.items-center.space-x-4 .text-white.text-lg");
+
+            stopTimer(currentState);
+            statusText.innerText = newStatus;
+
+            statusText.className = newStatus === "Available"
+                ? "text-green-300 font-semibold"
+                : newStatus === "In-Call" || newStatus === "Outbound"
+                    ? "text-yellow-300 font-semibold"
+                    : "text-red-300 font-semibold";
+
+            if (newStatus === "In-Call" || newStatus === "Outbound") {
+                leftSection.classList.remove("hidden");
+            } else {
+                leftSection.classList.add("hidden");
+            }
+
+            // Hide all timer spans
+            Array.from(statusDiv.querySelectorAll('span[id^="status-timer-"]')).forEach(span => {
+                span.style.display = 'none';
+            });
+
+            // Create timer if it doesn't exist and show it
+            let timerElement = document.getElementById(`status-timer-${newStatus}`);
+            if (!timerElement) {
+                const timerSpan = document.createElement('span');
+                timerSpan.id = `status-timer-${newStatus}`;
+                timerSpan.textContent = '00:00:00';
+                statusDiv.appendChild(timerSpan);
+                timerElement = timerSpan;
+            }
+            timerElement.style.display = 'inline'; // Show the current timer
+
+            startTimer(newStatus);
+            currentState = newStatus;
+        }
+
+        // Function to toggle the keypad visibility
+        function toggleKeypad() {
+            const keypad = document.getElementById("keypad-container");
+            const callUI = document.getElementById("call-ui");
+            keypad.classList.toggle("hidden");
+            callUI.classList.toggle("hidden");
+        }
+
+        // Function to handle keypad input
+        function handleKeyPress(key) {
+            let inputDisplay = document.getElementById("input-display");
+            if (key === 'back') {
+                inputDisplay.value = inputDisplay.value.slice(0, -1);
+            } else if (key === 'delete') {
+                inputDisplay.value = '';
+            } else {
+                inputDisplay.value += key;
+            }
+        }
+
+        // Function to clear all numbers
+        function clearInput() {
+            document.getElementById("input-display").value = '';
+        }
+
+        window.onload = () => {
+            setStatus();
+        };
+
+        // Function to handle the "Back" button functionality
+        function handleBackButton() {
+            const keypad = document.getElementById("keypad-container");
+            const callUI = document.getElementById("call-ui");
+            keypad.classList.add("hidden");
+            callUI.classList.remove("hidden");
+        }
+
+        // Function to handle the "Delete" button functionality
+        function handleDeleteButton() {
+            let inputDisplay = document.getElementById("input-display");
+            inputDisplay.value = inputDisplay.value.slice(0, -1);
+        }
+
+        // Function to handle the "Clear" button functionality
+        function handleClearButton() {
+            let inputDisplay = document.getElementById("input-display");
+            inputDisplay.value = '';
+        }
+    </script>
 </head>
+<body class="font-sans">
+    <nav class="bg-indigo-700 shadow-lg p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-white">Agent Trainer</h1>
+            <div class="text-white text-lg">
+                <p class="font-semibold">Agent: <span class="font-medium">Onwabe Zibeke</span></p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-white text-lg">
+                    <span id="current-status" class="font-semibold text-green-300">Available</span> :
+                    <span id="status-timer-Available">00:00:00</span>
+                </div>
+                <select id="status-select" class="py-2 px-4 border bg-indigo-700 rounded-lg focus:outline-none text-white" onchange="setStatus()">
+                    <option class="text-red-300 font-semibold" value="Available" selected>Available</option>
+                    <option value="In-Call">In-Call</option>
+                    <option value="Break">Break</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Training">Training</option>
+                    <option value="Feedback & Coaching">Feedback & Coaching</option>
+                    <option value="Outbound">Outbound</option>
+                    <option value="Not Ready">Not Ready</option>
+                </select>
+            </div>
+        </div>
+    </nav>
 
-<body class="flex justify-center items-center h-screen bg-white text-black font-sans">
+    <div class="container mx-auto max-w-[290px] border border-gray-300 rounded-lg mt-8 p-6 flex space-x-6">
+        <div id="left-section" class="flex-1 flex flex-col items-center justify-center hidden bg-white rounded-lg p-6">
+            <div id="call-ui" class="w-full  text-center">
+                <div class="customer-profile mb-6 flex flex-col items-center">
+                    <img src="https://th.bing.com/th?id=OIP.IGNf7GuQaCqz_RPq5wCkPgHaLH&w=204&h=306&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" 
+                         alt="Customer Profile" class="w-32 h-32 rounded-full mb-4 mx-auto">
+                    <div class="text-center p-4 rounded-lg w-full max-w-[200px] mx-auto">
+                        <p class="font-semibold text-xl text-gray-800"><span class="font-medium text-indigo-600">John Smith</span></p>
+                    </div>
+                </div>
+                
+                <div id="call-controls" class="grid grid-cols-2 gap-4 w-32 mx-auto mb-4 mt-4 p-2">
+                    <!-- Keypad button -->
+                    <button id="keypad" class="p-2 text-center text-3xl bg-transparent border-none" onclick="toggleKeypad()">
+                        <img src="/icons/keys.png" alt="Keypad" class="w-6 h-6">
+                    </button>
+                    <!-- Hold button -->
+                    <button id="hold" class="p-2 text-center text-3xl bg-transparent border-none">
+                        <img src="/icons/call.png" alt="Hold" class="w-6 h-6">
+                    </button>
+                    <!-- Mute button -->
+                    <button id="mute" class="p-2 text-center text-3xl bg-transparent border-none">
+                        <img src="/icons/mute.png" alt="Mute" class="w-6 h-6">
+                    </button>
+                    <!-- Loudspeaker button -->
+                    <button id="loudspeaker" class="p-2 text-center text-3xl bg-transparent border-none">
+                        <img src="/icons/speaker.png" alt="Loudspeaker" class="w-6 h-6">
+                    </button>
+                </div>
+            </div>
 
-    <div class="text-center px-6 py-8 max-w-xl w-full">
-        <!-- Coming Soon Heading -->
-        <h1 class="text-6xl font-bold mb-4 text-black">
-         Coming Soon....
-        </h1>
-
-        <!-- Intro Text -->
-        <p class="text-lg mb-6 text-gray-700">
-            We are working hard to bring you an innovative AI-powered voice training tool. Soon, you’ll be able to practice real-life customer calls using advanced text-to-speech technology to enhance your skills.
-        </p>
-
-        <!-- Button to Chat-Based Training -->
-        <div class="mt-6">
-            <a href="/loading" class="bg-black hover:bg-gray-800 text-white py-2 px-6 rounded-full font-semibold transition duration-300 flex items-center justify-center">
-                <i class="fas fa-comments mr-2"></i> Start Chat-Based Training Now
-            </a>
+            <!-- Keypad Container (Initially Hidden) -->
+            <div id="keypad-container" class="hidden p-4">
+                <input type="text" id="input-display" class="p-2 mb-4 text-center text-xl w-full border border-gray-300 rounded-lg focus:outline-none" readonly>
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <!-- Number keys (0-9), * and # -->
+                    <button onclick="handleKeyPress('1')" class="p-2 text-lg bg-transparent border-none">
+                        1
+                    </button>
+                    <button onclick="handleKeyPress('2')" class="p-2 text-lg bg-transparent border-none">
+                        2
+                    </button>
+                    <button onclick="handleKeyPress('3')" class="p-2 text-lg bg-transparent border-none">
+                        3
+                    </button>
+                    <button onclick="handleKeyPress('4')" class="p-2 text-lg bg-transparent border-none">
+                        4
+                    </button>
+                    <button onclick="handleKeyPress('5')" class="p-2 text-lg bg-transparent border-none">
+                        5
+                    </button>
+                    <button onclick="handleKeyPress('6')" class="p-2 text-lg bg-transparent border-none">
+                        6
+                    </button>
+                    <button onclick="handleKeyPress('7')" class="p-2 text-lg bg-transparent border-none">
+                        7
+                    </button>
+                    <button onclick="handleKeyPress('8')" class="p-2 text-lg bg-transparent border-none">
+                        8
+                    </button>
+                    <button onclick="handleKeyPress('9')" class="p-2 text-lg bg-transparent border-none">
+                        9
+                    </button>
+                    <button onclick="handleKeyPress('*')" class="p-2 text-lg bg-transparent border-none">
+                        *
+                    </button>
+                    <button onclick="handleKeyPress('0')" class="p-2 text-lg bg-transparent border-none">
+                        0
+                    </button>
+                    <button onclick="handleKeyPress('#')" class="p-2 text-lg bg-transparent border-none">
+                        #
+                    </button>
+                </div>
+                <!-- Back, Delete and Clear buttons -->
+                <div class="flex justify-between">
+                    <button onclick="handleBackButton()" class="p-2 text-sm bg-transparent border-none">
+                        <img src="/icons/arrow.png" alt="Back" class="w-6 h-6">
+                    </button>
+                    <button onclick="handleDeleteButton()" class="p-2 text-lg bg-transparent border-none">
+                        <img src="/icons/delete.png" alt="Delete" class="w-3 h-3">
+                    </button>
+                    <button onclick="handleClearButton()" class="p-2 text-lg bg-transparent border-none">
+                        <img src="/icons/cleaning.png" alt="Clear" class="w-6 h-6">
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-
 </body>
-
 </html>
