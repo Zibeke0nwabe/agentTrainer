@@ -181,8 +181,18 @@
                         <img src="/icons/speaker.png" alt="Loudspeaker" class="w-6 h-6">
                     </button>
                 </div>
+            <!-- New Div for End Call and Transfer Buttons -->
+            <div id="call-actions" class="grid grid-cols-2 gap-8 w-full mx-auto mt-4">
+                <!-- End Call button (75% width) -->
+                <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 flex items-center justify-center bg-black border border-gray-400 rounded shadow w-32 ">
+                    <img src="/icons/endCall.png" alt="End Call" class="w-6 mr-2"> End Call
+                </button>
+                <!-- Transfer button (25% width) -->
+                <button id="transfer" class=" text-white p-2 rounded-lg flex items-center justify-center w-full">
+                    <img src="/icons/transfer.png" alt="Transfer" class="w-6">
+                </button>
             </div>
-
+            </div>
             <!-- Keypad Container (Initially Hidden) -->
             <div id="keypad-container" class="hidden p-4">
                 <input type="text" id="input-display" class="p-2 mb-4 text-center text-xl w-full border border-gray-300 rounded-lg focus:outline-none" readonly>
