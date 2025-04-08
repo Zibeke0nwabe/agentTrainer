@@ -2,8 +2,6 @@ const express = require('express');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const bodyParser = require('body-parser');
 require("dotenv").config();
-const functions = require('firebase-functions');
-const path = require('path');
 
 const apiKey = 'AIzaSyBy1mBFlIvZhTk9TM7st8FbjGL7PnX6Lf0';
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -77,42 +75,33 @@ let chatSession = model.startChat({
 
 // Route for login page
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  res.sendFile(__dirname + '/public/login.html');
 });
-
-// Route for TL login page
+//Route for TL login Page
 app.get('/logintl', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'TL.html'));
+  res.sendFile(__dirname + '/public/TL.html');
 });
-
 // Route for loading page
 app.get('/loading', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'loading.html'));
+  res.sendFile(__dirname + '/public/loading.html');
 });
 
-// Route for voice page
-app.get('/voice', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'voice.html'));
-});
-
-// Route for home page
+// Route for login page
 app.get('/home', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'home.html'));
+  res.sendFile(__dirname + '/public/home.html');
 });
-
-// Route for leader page (dashboard)
+// Route for login page
 app.get('/leader', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'DashBoard.html'));
+  res.sendFile(__dirname + '/public/DashBoard.html');
 });
-
 // Route for agent call page
 app.get('/agent-call', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'agent-call.html'));
+  res.sendFile(__dirname + '/public/agent-call.html');
 });
 
 // Route for chat page
 app.get('/chat', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+  res.sendFile(__dirname + '/public/chat.html');
 });
 
 // Chat API route
@@ -128,9 +117,25 @@ app.post('/chat', async (req, res) => {
     res.status(500).send({ error: "Error during chat" });
   }
 });
+// Route for voice page
+app.get('/voice', (req, res) => {
+  res.sendFile(__dirname + '/public/voice.html');
+});
+//Voice API route
+app.post('/voice', async (req, res) => {
+  const userMessage = req.body.message;
+
+  try {
+    const result = await chatSession.sendMessage(userMessage);
+    const responseText = result.response.text();
+    res.send({ response: responseText });
+  } catch (error) {
+    console.error("Error during voice interaction:", error);
+    res.status(500).send({ error: "Error during voice interaction" });
+  }
+});
 // Start server
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
   console.log('Its working fine')
 });
-exports.app = functions.https.onRequest(app);

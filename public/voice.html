@@ -161,9 +161,9 @@
                          alt="Customer Profile" class="w-32 h-32 rounded-full mb-4 mx-auto">
                     <div class="text-center p-4 rounded-lg w-full max-w-[200px] mx-auto">
                         <p class="font-semibold text-xl text-gray-800"><span class="font-medium text-indigo-600">John Smith</span></p>
-                        <button id="start-recognition-button" onclick="startVoiceRecognition()">
-        <i class="fas fa-microphone"></i> Start Talking
-      </button>
+                            <button id="start-recognition-button" onclick="startVoiceRecognition()">
+                            <i class="fas fa-microphone"></i> Start Talking
+                            </button>
                     </div>
                 </div>
                 <div id="call-controls" class="grid grid-cols-2 gap-4 w-32 mx-auto mb-4 mt-4 p-2">
@@ -254,7 +254,7 @@
         </div>
     </div>
 </body>
-<script>
+  <script>
     const preCallContainer = document.getElementById('pre-call-container');
     const callContainer = document.getElementById('call-container');
     const callLog = document.getElementById('call-log');
@@ -381,7 +381,7 @@
 
       recognition.onerror = (event) => {
         console.error('Speech Recognition Error:', event.error);
-        speak("Sorry, there was an error with speech recognition.");
+        speak("Excuse me, I didn't quite hear what you said. Could you repeat that part, please?");
       };
     }
 
@@ -391,4 +391,4 @@
     // Initial load of voices (in case the voiceschanged event doesn't fire)
     setTimeout(loadVoices, 1000);
   </script>
-</html>
+  </html>
