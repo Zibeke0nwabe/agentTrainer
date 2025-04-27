@@ -1,9 +1,10 @@
 const express = require('express');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid');
 require("dotenv").config();
 
-const apiKey = 'AIzaSyBy1mBFlIvZhTk9TM7st8FbjGL7PnX6Lf0';
+const apiKey = process.env.API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({
@@ -50,6 +51,7 @@ const model = genAI.getGenerativeModel({
         * If you are uncertain about your current contract and its terms, ask about it in detail and challenge any vague answers you might receive.
 
         Now, simulate a random issue you might have when contacting TalkTalk customer service. You may get upset or frustrated depending on how things are going. Respond in a realistic manner, sometimes questioning or pushing back if the agent doesn’t seem to understand or offer an acceptable resolution. Your goal is to get a satisfactory answer and make sure your issue is resolved properly.`
+
 });
 
 const generationConfig = {
@@ -61,81 +63,109 @@ const generationConfig = {
 };
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3002;
 
-// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Initialize chat session
-let chatSession = model.startChat({
-  generationConfig,
-  history: [],
+// Sessions (per-device based via uuid)
+const sessionMap = new Map();
+
+function getSession(sessionId) {
+  if (!sessionMap.has(sessionId)) {
+    sessionMap.set(sessionId, model.startChat({ generationConfig, history: [] }));
+  }
+  return sessionMap.get(sessionId);
+}
+
+// Route for session ID creation (frontend fetches this)
+app.get('/session', (req, res) => {
+  const sessionId = uuidv4();
+  res.send({ sessionId });
 });
 
-// Route for login page
-app.get('/login', (req, res) => {
-  res.sendFile(__dirname + '/public/login.html');
-});
-//Route for TL login Page
-app.get('/logintl', (req, res) => {
-  res.sendFile(__dirname + '/public/TL.html');
-});
-// Route for loading page
-app.get('/loading', (req, res) => {
-  res.sendFile(__dirname + '/public/loading.html');
-});
+// Static routes
+app.get('/login', (req, res) => res.sendFile(__dirname + '/public/login.html'));
+app.get('/logintl', (req, res) => res.sendFile(__dirname + '/public/TL.html'));
+app.get('/loading', (req, res) => res.sendFile(__dirname + '/public/loading.html'));
+app.get('/home', (req, res) => res.sendFile(__dirname + '/public/home.html'));
+app.get('/leader', (req, res) => res.sendFile(__dirname + '/public/DashBoard.html'));
+app.get('/agent-call', (req, res) => res.sendFile(__dirname + '/public/agent-call.html'));
+app.get('/chat', (req, res) => res.sendFile(__dirname + '/public/chat.html'));
+app.get('/voice', (req, res) => res.sendFile(__dirname + '/public/voice.html'));
 
-// Route for login page
-app.get('/home', (req, res) => {
-  res.sendFile(__dirname + '/public/home.html');
-});
-// Route for login page
-app.get('/leader', (req, res) => {
-  res.sendFile(__dirname + '/public/DashBoard.html');
-});
-// Route for agent call page
-app.get('/agent-call', (req, res) => {
-  res.sendFile(__dirname + '/public/agent-call.html');
-});
-
-// Route for chat page
-app.get('/chat', (req, res) => {
-  res.sendFile(__dirname + '/public/chat.html');
-});
-
-// Chat API route
+// Chat endpoint
 app.post('/chat', async (req, res) => {
-  const userMessage = req.body.message;
-
+  const { message, sessionId } = req.body;
   try {
-    const result = await chatSession.sendMessage(userMessage);
-    const responseText = result.response.text();
-    res.send({ response: responseText });
-  } catch (error) {
-    console.error("Error during chat:", error);
-    res.status(500).send({ error: "Error during chat" });
+    const session = getSession(sessionId);
+    const result = await session.sendMessage(message);
+    res.send({ response: result.response.text() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Error during chat' });
   }
 });
-// Route for voice page
-app.get('/voice', (req, res) => {
-  res.sendFile(__dirname + '/public/voice.html');
-});
-//Voice API route
+
+// Voice endpoint
 app.post('/voice', async (req, res) => {
-  const userMessage = req.body.message;
-
+  const { message, sessionId } = req.body;
   try {
-    const result = await chatSession.sendMessage(userMessage);
-    const responseText = result.response.text();
-    res.send({ response: responseText });
-  } catch (error) {
-    console.error("Error during voice interaction:", error);
-    res.status(500).send({ error: "Error during voice interaction" });
+    const session = getSession(sessionId);
+    const result = await session.sendMessage(message);
+    res.send({ response: result.response.text() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Error during voice' });
   }
 });
-// Start server
+app.post('/evaluate', async (req, res) => {
+  const { sessionId, transcript } = req.body;
+
+  // Debug: log the incoming transcript to verify it's received correctly
+  console.log("Received Transcript:", transcript);
+
+
+  if (!Array.isArray(transcript) || transcript.length < 2) {
+    return res.status(400).json({ error: "Transcript is missing or not an array, or there aren't enough messages." });
+  }
+
+ 
+  const conversationText = transcript.join('\n');
+  
+  const evaluationPrompt = `
+    You are an AI call quality evaluator.
+
+    Here is the full transcript between an Agent and a Customer:
+    ${conversationText}
+
+    Please evaluate the agent's performance and provide:
+    - A brief summary of the customer's issue.
+    - A summary of how the agent responded.
+    - Key strengths of the agent.
+    - Areas for improvement.
+    - A score out of 10.
+
+    Respond in a friendly, realistic tone.
+  `;
+
+  try {
+    // Initialize the evaluation model
+    const evaluator = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash", 
+    });
+
+   
+    const result = await evaluator.generateContent(evaluationPrompt);
+    const feedback = await result.response.text();
+
+   
+    res.json({ feedback });
+  } catch (error) {
+    console.error("Evaluation error:", error.message);
+    res.status(500).json({ error: "Evaluation failed. Please try again later." });
+  }
+});
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
-  console.log('Its working fine')
 });

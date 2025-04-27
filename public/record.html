@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recorded Video</title>
+    <script defer src="javascript/record.js"></script>
+</head>
+<body class="font-sans bg-gray-100 text-center">
+    <div class="container mx-auto mt-8">
+        <h1 class="text-3xl font-bold mb-4">Recorded Video</h1>
+
+        <!-- Video player to show the recorded video -->
+        <div id="video-container" class="mx-auto">
+            <video id="recorded-video" controls class="w-full max-w-[600px]">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve the video URL from localStorage
+        const videoUrl = localStorage.getItem("recordedVideoUrl");
+        
+        if (videoUrl) {
+            // Set the video source to the recorded video URL
+            const videoElement = document.getElementById("recorded-video");
+            videoElement.src = videoUrl;
+        } else {
+            console.error("No recorded video found in localStorage.");
+        }
+    </script>
+</body>
+</html>

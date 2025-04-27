@@ -24,7 +24,7 @@
   </div>
     <!-- Right Section (Logout Button + Menu Icon) -->
     <div class="flex items-center space-x-4">
-      <button onclick="window.location.href='/index'" class="border border-white text-white px-3 py-1 md:px-4 md:py-2 text-sm md:text-base rounded-full hover:bg-white hover:text-gray-900 focus:outline-none transition-all duration-200">
+      <button onclick="window.location.href='/'" class="border border-white text-white px-3 py-1 md:px-4 md:py-2 text-sm md:text-base rounded-full hover:bg-white hover:text-gray-900 focus:outline-none transition-all duration-200">
         <i class="fas fa-sign-out-alt mr-1 md:mr-2"></i>Logout
       </button>
       <button id="menuButton" class="text-2xl focus:outline-none md:hidden text-white">
@@ -66,61 +66,8 @@
       <h2 class="text-3xl font-bold text-gray-900">Call Center Departments</h2>
       <p class="text-sm text-gray-600 mt-2 max-w-3xl mx-auto">Our call center is divided into specialized departments, each focused on delivering top-notch customer support, technical assistance, retention strategies, and handling complaints. Each department plays a vital role in ensuring customer satisfaction.</p>
     </div>
-  
-    <!-- Department Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <!-- Customer Service Card -->
-      <div class="bg-white p-6 rounded-lg  hover:shadow-xl transition-shadow duration-300">
-        <img src="https://th.bing.com/th/id/OIP.fyXyg1BJ7AMtjbBY9N4XVwHaEW?w=277&h=180&c=7&r=0&o=5&pid=1.7" alt="Customer Service" class="w-full h-48 object-cover rounded-t-lg">
-        <h3 class="text-xl font-semibold text-gray-800 mt-4">Customer Service</h3>
-        <p class="text-sm text-gray-600 mt-2">Assisting customers with inquiries and ensuring smooth experiences.</p>
-        <div class="mt-4 flex space-x-4">
-          <!-- Chat App Button (Black background) -->
-          <button class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors duration-200"><a href="/loading">Chat App</a></button>
-          <!-- Voice Call Button (White background, black border) -->
-          <button class="bg-white text-black border-2 border-black px-4 py-2 rounded-md hover:bg-black hover:text-white transition-colors duration-200"><a href="/voice">Voice</a></button>
-        </div>
-      </div>
-  
-      <!-- Tech Support Card -->
-      <div class="bg-white p-6 rounded-lg  hover:shadow-xl transition-shadow duration-300">
-        <img src="https://th.bing.com/th/id/OIP.MosVHgElnuMFcamuzOzVzgHaEK?w=305&h=180&c=7&r=0&o=5&pid=1.7" alt="Tech Support" class="w-full h-48 object-cover rounded-t-lg">
-        <h3 class="text-xl font-semibold text-gray-800 mt-4">Tech Support</h3>
-        <p class="text-sm text-gray-600 mt-2">Providing technical support and troubleshooting product issues.</p>
-        <div class="mt-4 flex space-x-4">
-          <!-- Chat App Button (Black background) -->
-          <button class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors duration-200"><a href="/loading">Chat App</a></button>
-          <!-- Voice Call Button (White background, black border) -->
-          <button class="bg-white text-black border-2 border-black px-4 py-2 rounded-md hover:bg-black hover:text-white transition-colors duration-200"><a href="/voice">Voice Call</a></button>
-        </div>
-      </div>
-  
-      <!-- Retention Card -->
-      <div class="bg-white p-6 rounded-lg  hover:shadow-xl transition-shadow duration-300">
-        <img src="https://th.bing.com/th/id/OIP.o333TxekALpbApH58rqBGgHaE8?w=253&h=180&c=7&r=0&o=5&pid=1.7" alt="Retention" class="w-full h-48 object-cover rounded-t-lg">
-        <h3 class="text-xl font-semibold text-gray-800 mt-4">Retention</h3>
-        <p class="text-sm text-gray-600 mt-2">Keeping customers engaged and ensuring long-term relationships.</p>
-        <div class="mt-4 flex space-x-4">
-          <!-- Chat App Button (Black background) -->
-          <button class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors duration-200"><a href="/loading">Chat App</a></button>
-          <!-- Voice Call Button (White background, black border) -->
-          <button class="bg-white text-black border-2 border-black px-4 py-2 rounded-md hover:bg-black hover:text-white transition-colors duration-200"><a href="/voice">Voice Call</a></button>
-        </div>
-      </div>
-  
-      <!-- Complaints Card -->
-      <div class="bg-white p-6 rounded-lg  hover:shadow-xl transition-shadow duration-300">
-        <img src="https://th.bing.com/th/id/OIP.7P-e5bSn20eZxoAfPgtXqgHaEK?w=272&h=180&c=7&r=0&o=5&pid=1.7" alt="Complaints" class="w-full h-48 object-cover rounded-t-lg">
-        <h3 class="text-xl font-semibold text-gray-800 mt-4">Complaints</h3>
-        <p class="text-sm text-gray-600 mt-2">Handling customer concerns and ensuring satisfaction.</p>
-        <div class="mt-4 flex space-x-4">
-          <!-- Chat App Button (Black background) -->
-          <button class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors duration-200"><a href="/loading">Chat App</a></button>
-          <!-- Voice Call Button (White background, black border) -->
-          <button class="bg-white text-black border-2 border-black px-4 py-2 rounded-md hover:bg-black hover:text-white transition-colors duration-200"><a href="/voice">Voice Call</a></button>
-        </div>
-      </div>
-    </div>
+        <!-- Department Cards -->
+        <div id="department-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div> 
   </section>
   <section class="flex flex-col md:flex-row items-center justify-between px-8 py-16 bg-white" id="mission">
     <!-- Left Side (Text) -->
@@ -216,5 +163,11 @@
     mobileMenu.classList.toggle("hidden");
   });
 </script>
+<script src="javacript/cards.js"></script>
+<script defer>
+  document.addEventListener("DOMContentLoaded", () => {
+    renderDepartmentCards("department-cards");
+  });
+  </script>
 </body>
 </html>
