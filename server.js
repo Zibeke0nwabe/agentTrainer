@@ -3,6 +3,20 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config();
+const session = require('express-session');
+
+const app = express();
+const port = process.env.PORT || 3002;
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 30 * 60 * 1000 } // Session expires in 30 minutes
+}));
+
+app.use(bodyParser.json());  
+app.use(bodyParser.urlencoded({ extended: true }));  
 
 const apiKey = process.env.API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -62,8 +76,6 @@ const generationConfig = {
   responseMimeType: "text/plain",
 };
 
-const app = express();
-const port = process.env.PORT || 3002;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
@@ -83,17 +95,52 @@ app.get('/session', (req, res) => {
   const sessionId = uuidv4();
   res.send({ sessionId });
 });
+//route protecttion
+function requireAuth(req, res, next) {
+  if (req.session && req.session.isAuthenticated) {
+    next(); 
+  } else {
+    res.redirect('/login');
+  }
+}
 
 // Static routes
 app.get('/login', (req, res) => res.sendFile(__dirname + '/public/login.html'));
 app.get('/logintl', (req, res) => res.sendFile(__dirname + '/public/TL.html'));
-app.get('/loading', (req, res) => res.sendFile(__dirname + '/public/loading.html'));
-app.get('/home', (req, res) => res.sendFile(__dirname + '/public/home.html'));
+app.get('/loading', requireAuth, (req, res) => res.sendFile(__dirname + '/public/loading.html'));
 app.get('/leader', (req, res) => res.sendFile(__dirname + '/public/DashBoard.html'));
 app.get('/agent-call', (req, res) => res.sendFile(__dirname + '/public/agent-call.html'));
-app.get('/chat', (req, res) => res.sendFile(__dirname + '/public/chat.html'));
-app.get('/voice', (req, res) => res.sendFile(__dirname + '/public/voice.html'));
+app.get('/voice', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/voice.html');
+});
 
+app.get('/home', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/home.html');
+});
+
+app.get('/chat', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/chat.html');
+});
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).send('Logout error');
+    }
+    res.redirect('/login');
+  });
+});
+//login endpoint
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  if (username === process.env.LOGIN_USERNAME && password === process.env.LOGIN_PASSWORD) {
+    req.session.isAuthenticated = true;  // Set session to authenticated
+    console.log('Login successful');
+    return res.json({ success: true });
+  }
+
+  console.log('Login failed');
+  return res.json({ success: false, message: 'Incorrect username or password.' });
+});
 // Chat endpoint
 app.post('/chat', async (req, res) => {
   const { message, sessionId } = req.body;
@@ -168,4 +215,6 @@ app.post('/evaluate', async (req, res) => {
 });
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
+  console.log("ENV username:", process.env.LOGIN_USERNAME);
+  console.log("ENV password:", process.env.LOGIN_PASSWORD);
 });
