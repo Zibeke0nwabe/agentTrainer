@@ -117,9 +117,11 @@ app.get('/voice', requireAuth, (req, res) => {
 app.get('/home', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/home.html');
 });
-
 app.get('/chat', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/chat.html');
+});
+app.get('/evaluate', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/end.html');
 });
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
@@ -168,45 +170,38 @@ app.post('/voice', async (req, res) => {
 });
 app.post('/evaluate', async (req, res) => {
   const { sessionId, transcript } = req.body;
-
-  // Debug: log the incoming transcript to verify it's received correctly
   console.log("Received Transcript:", transcript);
-
 
   if (!Array.isArray(transcript) || transcript.length < 2) {
     return res.status(400).json({ error: "Transcript is missing or not an array, or there aren't enough messages." });
   }
 
- 
-  const conversationText = transcript.join('\n');
-  
+  const conversationText = transcript.join('\n');  // Join the transcript into a single string
+
   const evaluationPrompt = `
     You are an AI call quality evaluator.
 
     Here is the full transcript between an Agent and a Customer:
     ${conversationText}
 
-    Please evaluate the agent's performance and provide:
-    - A brief summary of the customer's issue.
-    - A summary of how the agent responded.
-    - Key strengths of the agent.
-    - Areas for improvement.
-    - A score out of 10.
+    Please evaluate the agent's performance based on the following:
+    - Provide a brief summary of the customer's issue (e.g., What was the customer asking for?)
+    - Summarize how the agent responded to the issue.
+    - List key strengths of the agent during the call.
+    - Point out areas where the agent can improve.
+    - Assign a score out of 10, with an explanation for the score.
 
-    Respond in a friendly, realistic tone.
+    Provide the response in a friendly and realistic tone.
   `;
 
   try {
-    // Initialize the evaluation model
     const evaluator = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash", 
+      model: "gemini-2.0-flash-exp",  
     });
 
-   
     const result = await evaluator.generateContent(evaluationPrompt);
-    const feedback = await result.response.text();
+    const feedback = result.response.text ? result.response.text() : result.response;
 
-   
     res.json({ feedback });
   } catch (error) {
     console.error("Evaluation error:", error.message);
@@ -215,6 +210,4 @@ app.post('/evaluate', async (req, res) => {
 });
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
-  console.log("ENV username:", process.env.LOGIN_USERNAME);
-  console.log("ENV password:", process.env.LOGIN_PASSWORD);
 });

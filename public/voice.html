@@ -14,7 +14,7 @@
 <body class="font-sans">
     <nav class="bg-indigo-700 shadow-lg p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-white">Agent Trainer</h1>
+          <a href='/home'><h1 class="text-3xl font-bold text-white">Agent Trainer</h1></a>
             <div class="text-white text-lg">
                 <p class="font-semibold">Agent: <span class="font-medium">Onwabe Zibeke</span></p>
             </div>
@@ -72,12 +72,12 @@
             <!-- Call Actions -->
             <div id="call-actions" class="grid grid-cols-2 gap-8 w-full mx-auto mt-4">
                 <!-- End Call Button -->
-                <button id="end-call-button" 
-                        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 flex items-center justify-center bg-black border border-gray-400 rounded shadow w-32">
-                    <img src="/icons/endCall.png" alt="End Call" class="w-6 mr-2"> End Call
-                </button>
-
-                <!-- Transfer Button -->
+                    <button id="end-call-button" 
+                            class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 flex items-center justify-center bg-black border border-gray-400 rounded shadow w-32"
+                            onclick="endCall()">
+                        <img src="/icons/endCall.png" alt="End Call" class="w-6 mr-2"> End Call
+                    </button>
+                    <!-- Transfer Button -->
                 <button id="transfer-button" 
                         class="text-white p-2 rounded-lg flex items-center justify-center w-full">
                     <img src="/icons/transfer.png" alt="Transfer" class="w-6">

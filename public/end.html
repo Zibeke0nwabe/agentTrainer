@@ -14,7 +14,8 @@
         <div id="evaluation-results" class="bg-white p-6 rounded-lg shadow-lg">
             <p><strong>Evaluation Summary:</strong></p>
             <div id="evaluation-feedback" class="mt-4 text-gray-700">
-                <!-- -->
+                <!-- This will display the evaluation results -->
+                <p id="feedback-text"></p>
             </div>
         </div>
 
@@ -22,5 +23,15 @@
             <a href="/home" class="bg-indigo-600 text-white py-2 px-6 rounded-lg">Back to Home</a>
         </div>
     </div>
+
+    <script>
+        // Grab the evaluationResults from the query string
+        const urlParams = new URLSearchParams(window.location.search);
+        const evaluationResults = urlParams.get('evaluationResults') || 'No evaluation available. You did not take the call.';
+        
+        // Insert the feedback into the page
+        document.getElementById('feedback-text').textContent = evaluationResults;
+    </script>
 </body>
 </html>
+
