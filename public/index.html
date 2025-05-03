@@ -124,42 +124,57 @@
     </div>
   </section>
 <!-- Footer -->
-<footer class="bg-black text-white py-12">
-  <div class="container mx-auto px-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      
+<footer class="bg-black text-white pt-16 pb-10">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
+
       <!-- Contact Information -->
       <div>
-        <h3 class="text-2xl font-semibold mb-4">Contact Information</h3>
-        <p class="text-gray-400 mb-2">Email: <a href="mailto:support@trainingcaller.com" class="hover:text-white">support@trainingcaller.com</a></p>
-        <p class="text-gray-400 mb-2">Phone: <a href="tel:+1234567890" class="hover:text-white">+1 (234) 567-890</a></p>
-        <p class="text-gray-400">Address: 1234 Call Center Rd, Suite 101, Port St Johns, Eastern Cape, South Africa</p>
-      </div>
-      
-      <!-- Developer Information -->
-      <div>
-        <h3 class="text-2xl font-semibold mb-4">Developer</h3>
-        <p class="text-gray-400 mb-2">Developed by: Onwabe Zibeke</p>
-        <p class="text-gray-400 mb-2">Contact: <a href="tel:+2784300901" class="hover:text-white">0784300901</a></p>
-        <p class="text-gray-400 mb-2">Email: <a href="mailto:zibekeonwabe@gmail.com" class="hover:text-white">zibekeonwabe@gmail.com</a></p>
-        <p class="text-gray-400">Location: Port St Johns, Eastern Cape, South Africa</p>
+        <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+        <ul class="text-gray-300 space-y-2 text-sm">
+          <li>Email: <a href="mailto:support@trainingcaller.com" class="hover:text-white">support@trainingcaller.com</a></li>
+          <li>Phone: <a href="tel:+27784300901" class="hover:text-white">+27 (78) 430-0901</a></li>
+          <li>Address: Isilimela Road, Tombo, Port St Johns, EC, South Africa</li>
+        </ul>
       </div>
 
-      <!-- Newsletter Sign-Up -->
+      <!-- Developer Info -->
       <div>
-        <h3 class="text-2xl font-semibold mb-4">Stay Updated</h3>
-        <p class="text-gray-400 mb-4">Sign up for our newsletter to receive the latest news, updates, and tips directly in your inbox.</p>
-        <form action="#" method="POST">
-          <input type="email" name="email" placeholder="Enter your email" class="w-full px-4 py-2 bg-white text-black rounded-md mb-4" required>
-          <button type="submit" class="w-full py-2 bg-white text-black rounded-md border border-black hover:bg-gray-100 transition duration-200">
-            Subscribe
-          </button>
+        <h3 class="text-xl font-bold mb-4">Developer</h3>
+        <ul class="text-gray-300 space-y-2 text-sm">
+          <li>Name: Onwabe Zibeke</li>
+          <li>Phone: <a href="tel:+2784300901" class="hover:text-white">078 430 0901</a></li>
+          <li>Email: <a href="mailto:zibekeonwabe@gmail.com" class="hover:text-white">zibekeonwabe@gmail.com</a></li>
+          <li>Location: Port St Johns, Eastern Cape</li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div>
+        <h3 class="text-xl font-bold mb-4">Newsletter</h3>
+        <p class="text-gray-400 text-sm mb-4">Join our mailing list to receive updates and tips.</p>
+        <form action="#" method="POST" class="space-y-3">
+          <input type="email" name="email" placeholder="Enter your email" class="w-full px-3 py-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-white" required>
+          <button type="submit" class="w-full py-2 bg-white text-black rounded-md hover:bg-gray-200 transition">Subscribe</button>
         </form>
       </div>
+
+      <!-- About Agent Trainer & Esgela -->
+      <div>
+        <h3 class="text-xl font-bold mb-4">About Agent Trainer</h3>
+        <div class="mb-4 bg-white rounded-md w-fit">
+          <img src="/icons/esgela (2).png" alt="Esgela Logo" class="w-16 h-auto">
+        </div>
+        <p class="text-gray-300 text-sm mb-2">Agent Trainer is an AI-powered system enhancing customer support efficiency.</p>
+        <p class="text-gray-300 text-sm mb-2">Sponsored by <a href="https://www.esgela.onrender.com" class="underline hover:text-white">Esgela.com</a> – a learning platform by Onwabe Zibeke.</p>
+        <p class="text-gray-300 text-sm">Esgela empowers youth through technology education in Eastern Cape.</p>
+      </div>
+
     </div>
   </div>
 </footer>
-    <!-- JavaScript for Mobile Menu -->
+
+ <!-- JavaScript for Mobile Menu -->
 <script>
   const menuToggle = document.getElementById("menu-toggle");
   const navLinks = document.getElementById("nav-links");

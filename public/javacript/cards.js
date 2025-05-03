@@ -59,7 +59,7 @@ function renderDepartmentCards(containerId) {
     // Loop through departments and create the cards
     departments.forEach(dept => {
       const card = document.createElement("div");
-      card.className = "bg-white p-6 rounded-lg hover:shadow-xl transition-shadow duration-300";
+      card.className = "bg-white p-6 rounded-lg hover:shadow-md transition-shadow duration-300";
       card.innerHTML = `
         <img src="${dept.image}" alt="${dept.title}" class="w-full h-48 object-cover rounded-t-lg">
         <h3 class="text-xl font-semibold text-gray-800 mt-4">${dept.title}</h3>
@@ -87,7 +87,7 @@ function renderDepartmentCards(containerId) {
     // Render the login prompt
     departments.forEach(dept => {
       const card = document.createElement("div");
-      card.className = "bg-white p-6 rounded-lg hover:shadow-xl transition-shadow duration-300";
+      card.className = "bg-white p-6 rounded-lg hover:shadow-md transition-shadow duration-300";
       card.innerHTML = `
         <img src="${dept.image}" alt="${dept.title}" class="w-full h-48 object-cover rounded-t-lg">
         <h3 class="text-xl font-semibold text-gray-800 mt-4">${dept.title}</h3>
