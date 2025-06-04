@@ -1,71 +1,39 @@
-const preCallContainer = document.getElementById('pre-call-container');
-const callContainer = document.getElementById('call-container');
-const callLog = document.getElementById('call-log');
-const startCallButton = document.getElementById('start-call-button');
+// voice.js
+
 const startRecognitionButton = document.getElementById('start-recognition-button');
-const voiceSelect = document.getElementById('voice-select');
+const callLog = []; // Store transcript for evaluation
 
-let synth = window.speechSynthesis;
-let voices = [];
-let selectedVoice;
 let recognition;
-let listening = false; // Flag to manage when to start listening
+let synth = window.speechSynthesis;
+let selectedVoice;
+let voices = [];
 
-// Load available voices and populate the dropdown
+// Load voices and set default voice
 function loadVoices() {
   voices = synth.getVoices();
-  voiceSelect.innerHTML = '';
-
-  // Add all available voices to the dropdown
-  voices.forEach((voice, i) => {
-    const option = document.createElement('option');
-    option.value = i;
-    option.textContent = `${voice.name} (${voice.lang})`;
-    voiceSelect.appendChild(option);
-  });
-
-  // Set the default voice to the first available voice
-  if (voices.length > 0) {
-    selectedVoice = voices[0];
-  }
+  if (voices.length > 0) selectedVoice = voices[0];
 }
+window.speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
 
-// Start the call
-function startCall() {
-  const selectedIndex = voiceSelect.value;
-  selectedVoice = voices[selectedIndex];
-
-  if (!selectedVoice) {
-    alert("Please select a voice before starting the call.");
-    return;
-  }
-
-  // Hide the pre-call container and show the call container
-  preCallContainer.style.display = 'none';
-  callContainer.style.display = 'flex';
-
-  // Start voice recognition after the call starts
-  startVoiceRecognition();
-}
-
-// Speak function for AI (customer)
+// Speak AI response
 function speak(text) {
+  if (!selectedVoice) return;
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.voice = selectedVoice;
   utterance.rate = 1;
   utterance.pitch = 1;
-  synth.speak(utterance);
 
-  // Log the AI's message to the console instead of the call log
-  console.log(`Customer says: ${text}`);
-
-  // After AI speaks, start listening for the agent again
-  utterance.onend = function () {
+  utterance.onend = () => {
     startVoiceRecognition();
   };
+
+  synth.speak(utterance);
+  console.log(`Customer says: ${text}`);
 }
 
-// Start speech recognition to capture the agent's voice
+// Start voice recognition for agent's speech
 function startVoiceRecognition() {
   if (!('webkitSpeechRecognition' in window)) {
     alert("Speech Recognition is not supported in this browser.");
@@ -77,31 +45,16 @@ function startVoiceRecognition() {
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
-  // Start the voice recognition
-  if (!listening) {
-    recognition.start();
-    listening = true;
-    startRecognitionButton.innerText = "Listening...";
-  }
-
   recognition.onstart = () => {
     startRecognitionButton.innerText = "Listening...";
   };
 
-  recognition.onspeechend = () => {
-    recognition.stop();
-    listening = false;
-    startRecognitionButton.innerText = "Start Talking";
-  };
-
   recognition.onresult = async (event) => {
     const agentMessage = event.results[0][0].transcript.trim();
-
     if (agentMessage) {
-      // Log the agent's message to the console
       console.log(`Agent says: ${agentMessage}`);
+      callLog.push({ speaker: "Agent", text: agentMessage }); // Add to transcript
 
-      // Send the agent's voice message to the server and get the AI's response
       try {
         const response = await fetch('/voice', {
           method: 'POST',
@@ -109,28 +62,42 @@ function startVoiceRecognition() {
           body: `message=${encodeURIComponent(agentMessage)}`,
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP Error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
 
         const data = await response.json();
-        speak(data.response); // AI responds by speaking
-      } catch (error) {
-        console.error('Error sending message:', error);
-        speak("Sorry, I couldn't process your request. Please try again.");
+        callLog.push({ speaker: "Customer", text: data.response }); // Add AI response to transcript
+        speak(data.response);
+      } catch (err) {
+        console.error('Error:', err);
+        speak("Sorry, I couldn't process your request.");
       }
     }
   };
 
-  recognition.onerror = (event) => {
-    cconsole.error('Speech Recognition Error:', event.error);
-    const error2 = event.error;
-    speak(error2);
+  recognition.onspeechend = () => {
+    recognition.stop();
+    startRecognitionButton.innerText = "Start Talking";
   };
+
+  recognition.onerror = (event) => {
+    console.error('Recognition error:', event.error);
+    startRecognitionButton.innerText = "Start Talking";
+  };
+
+  recognition.start();
 }
 
-// Load voices when the page loads
-window.speechSynthesis.onvoiceschanged = loadVoices;
+// Expose function to be called from HTML button
+startRecognitionButton.addEventListener('click', () => {
+  startVoiceRecognition();
+});
 
-// Initial load of voices (in case the voiceschanged event doesn't fire)
-setTimeout(loadVoices, 1000);
+// Function to get full transcript text for evaluation
+function getCallTranscript() {
+  return callLog.map(entry => `${entry.speaker}: ${entry.text}`).join('\n');
+}
+
+// Attach getCallTranscript globally so end.js can access it
+window.getCallTranscript = getCallTranscript;
+window.callLog = callLog;
+window.recognition = recognition;

@@ -176,7 +176,7 @@ app.post('/evaluate', async (req, res) => {
     return res.status(400).json({ error: "Transcript is missing or not an array, or there aren't enough messages." });
   }
 
-  const conversationText = transcript.join('\n');  // Join the transcript into a single string
+  const conversationText = transcript.join('\n');  
 
   const evaluationPrompt = `
     You are an AI call quality evaluator.
