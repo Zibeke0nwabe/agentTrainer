@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config();
 const session = require('express-session');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const port = process.env.PORT || 3002;
@@ -208,6 +209,54 @@ app.post('/evaluate', async (req, res) => {
     res.status(500).json({ error: "Evaluation failed. Please try again later." });
   }
 });
+
+app.post('/contact', async (req, res) => {
+  const { name, email, message } = req.body;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // 1. Email to the Admin
+    await transporter.sendMail({
+      from: `"Agent Trainer Website" <${email}>`,
+      to: process.env.EMAIL_USER,
+      subject: `New Contact Form Submission from ${name}`,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong><br>${message}</p>
+      `,
+    });
+
+    // 2. Confirmation Email to the User
+    await transporter.sendMail({
+      from: `"Agent Trainer Team" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `We've received your message`,
+      html: `
+        <p>Hi ${name},</p>
+        <p>Thank you for contacting <strong>Agent Trainer</strong>. We’ve received your message and will get back to you soon.</p>
+        <p><strong>Your Message:</strong></p>
+        <blockquote>${message}</blockquote>
+        <p>Best regards,<br>The Agent Trainer Team</p>
+      `,
+    });
+
+    res.status(200).json({ success: true });
+
+  } catch (error) {
+    console.error("Contact form error:", error.message);
+    res.status(500).json({ success: false, error: "Failed to send emails." });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });

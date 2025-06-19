@@ -224,8 +224,7 @@
 
     <!-- Right: Form -->
     <div class="p-6 rounded-lg shadow space-y-4 self-start">
-      <form action="#" method="POST" class="space-y-5">
-
+      <form action="/contact" method="POST" class="space-y-5">
         <!-- Name Field -->
         <div class="relative">
           <label for="name" class="block text-sm mb-1"><i class="fas fa-user"></i> Name</label>
@@ -474,5 +473,35 @@
     icon.style.transform = 'rotate(0deg)';
   }
 </script>
+<script>
+  document.querySelector('form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    try {
+      const response = await fetch('/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Message sent! We’ve emailed you a confirmation.');
+        e.target.reset();
+      } else {
+        alert('Something went wrong. Please try again later.');
+      }
+    } catch (err) {
+      console.error('Contact form submission error:', err);
+      alert('Network error. Please try again later.');
+    }
+  });
+</script>
+
 </body>
 </html>
