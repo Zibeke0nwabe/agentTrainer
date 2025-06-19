@@ -3,7 +3,7 @@ const departments = [
   {
     title: "Customer Service",
     description: "Assisting customers with inquiries and ensuring smooth experiences.",
-    image: "https://th.bing.com/th/id/OIP.fyXyg1BJ7AMtjbBY9N4XVwHaEW?w=277&h=180&c=7&r=0&o=5&pid=1.7",
+    image: "/icons/image2.jpeg",
   },
   {
     title: "Tech Support",
@@ -44,8 +44,7 @@ function renderDepartmentCards(containerId) {
       const card = document.createElement("div");
       card.className = `
         bg-white
-        border border-gray-400
-        rounded-lg
+        rounded-sm
         overflow-hidden
         flex flex-col
         transition-colors duration-300
