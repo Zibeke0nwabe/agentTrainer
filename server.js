@@ -132,6 +132,7 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
   });
 });
+
 //login endpoint
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
@@ -208,6 +209,16 @@ app.post('/evaluate', async (req, res) => {
     console.error("Evaluation error:", error.message);
     res.status(500).json({ error: "Evaluation failed. Please try again later." });
   }
+});
+app.post('/end-chat', (req, res) => {
+  const { sessionId } = req.body;
+
+  if (sessionId && sessionMap.has(sessionId)) {
+    sessionMap.delete(sessionId); 
+    console.log(`Session ${sessionId} ended.`);
+  }
+
+  res.sendStatus(200);
 });
 
 app.post('/contact', async (req, res) => {

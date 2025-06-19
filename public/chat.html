@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatBOT Redesign</title>
+  <title>Agent Trainer Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -200,7 +200,25 @@
         <input type="text" id="user-input" placeholder="Type your message..." />
         <button id="send-button">
           <i class="fas fa-paper-plane"></i>
-        </button>
+<button
+  id="close-chat"
+  class="
+    group relative inline-flex items-center justify-center
+    px-8 py-3 text-sm font-semibold text-white
+    bg-gradient-to-r from-red-600 to-red-700
+    rounded-full shadow-xl
+    transition-transform duration-200 ease-in-out
+    hover:scale-105 hover:from-red-700 hover:to-red-800
+    focus:outline-none focus:ring-4 focus:ring-red-300
+  "
+>
+  <span class="absolute inset-0 rounded-full opacity-0 bg-gradient-to-r from-red-500 to-red-600 blur-lg transition-opacity duration-300 group-hover:opacity-100"></span>
+  <span class="relative flex items-center space-x-2">
+    <i class="fas fa-times"></i>
+    <span>Close Chat</span>
+  </span>
+</button>
+
       </div>
     </main>
 
@@ -234,90 +252,127 @@ Latest Resolution:
       <textarea id="my-notes" class="hidden w-full h-[320px] text-black bg-gray-100 rounded px-3 py-2 focus:outline-none focus:ring-2 "></textarea>
     </aside>
   </div>
-
   <script>
-    const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
-    const typingIndicator = document.getElementById('typing-indicator');
+// === JS for chat.html ===
 
-    const btnCareNotes = document.getElementById('btn-care-notes');
-    const btnComplaintNotes = document.getElementById('btn-complaint-notes');
-    const btnMyNotes = document.getElementById('btn-my-notes');
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
+const sendButton = document.getElementById('send-button');
+const typingIndicator = document.getElementById('typing-indicator');
+const transcript = [];
 
-    const careNotes = document.getElementById('care-notes');
-    const complaintNotes = document.getElementById('complaint-notes');
-    const myNotes = document.getElementById('my-notes');
+// Note buttons & sections
+const btnCareNotes = document.getElementById('btn-care-notes');
+const btnComplaintNotes = document.getElementById('btn-complaint-notes');
+const btnMyNotes = document.getElementById('btn-my-notes');
+const careNotes = document.getElementById('care-notes');
+const complaintNotes = document.getElementById('complaint-notes');
+const myNotes = document.getElementById('my-notes');
 
-    // Toggle Notes Sections
-    btnCareNotes.addEventListener('click', () => toggleNotes('care'));
-    btnComplaintNotes.addEventListener('click', () => toggleNotes('complaint'));
-    btnMyNotes.addEventListener('click', () => toggleNotes('my'));
+// Toggle Notes
+const toggleNotes = (type) => {
+  careNotes.classList.add('hidden');
+  complaintNotes.classList.add('hidden');
+  myNotes.classList.add('hidden');
 
-    const toggleNotes = (type) => {
-      careNotes.classList.add('hidden');
-      complaintNotes.classList.add('hidden');
-      myNotes.classList.add('hidden');
+  if (type === 'care') careNotes.classList.remove('hidden');
+  if (type === 'complaint') complaintNotes.classList.remove('hidden');
+  if (type === 'my') myNotes.classList.remove('hidden');
+};
 
-      if (type === 'care') careNotes.classList.remove('hidden');
-      if (type === 'complaint') complaintNotes.classList.remove('hidden');
-      if (type === 'my') myNotes.classList.remove('hidden');
-    };
+// Attach toggle listeners
+btnCareNotes?.addEventListener('click', () => toggleNotes('care'));
+btnComplaintNotes?.addEventListener('click', () => toggleNotes('complaint'));
+btnMyNotes?.addEventListener('click', () => toggleNotes('my'));
 
-    // Handle Send Button
-    sendButton.addEventListener('click', async () => {
-      sendMessage();
+// Append message to chat and transcript
+const appendMessage = (sender, message) => {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = sender === 'Agent' ? 'message left' : 'message right';
+  messageDiv.innerHTML = message;
+  chatBox.appendChild(messageDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  transcript.push(`${sender}: ${message}`);
+};
+
+// Send message function
+const sendMessage = async () => {
+  const message = userInput.value.trim();
+  if (!message) return;
+
+  appendMessage('Agent', message);
+  userInput.value = '';
+  typingIndicator.classList.remove('hidden');
+
+  try {
+    const sessionId = localStorage.getItem('sessionId') || '';
+    const response = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `message=${encodeURIComponent(message)}&sessionId=${sessionId}`,
     });
 
-    // Handle Enter Key for Sending
-    userInput.addEventListener('keypress', (event) => {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
+    const data = await response.json();
+    typingIndicator.classList.add('hidden');
+    appendMessage('Bot', data.response);
+  } catch (error) {
+    typingIndicator.classList.add('hidden');
+    console.error('Error sending message:');
+    appendMessage('Bot', "Your message was not delivered.");
+  }
+};
+
+// Send on button click
+sendButton?.addEventListener('click', sendMessage);
+
+// Send on Enter key
+userInput?.addEventListener('keypress', (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+  }
+});
+
+// Handle Close Chat
+const closeBtn = document.getElementById('close-chat');
+closeBtn?.addEventListener('click', async () => {
+  const sessionId = localStorage.getItem('sessionId') || '';
+
+  if (transcript.length < 4) {
+    alert("You must have a proper conversation before closing the chat.");
+    return;
+  }
+
+  try {
+    const response = await fetch('/evaluate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, transcript })
     });
 
-    const sendMessage = async () => {
-      const message = userInput.value.trim();
-      if (message === "") return;
+    const data = await response.json();
 
-      appendMessage('Agent', message);
-      userInput.value = '';
+    if (data.feedback) {
+      localStorage.setItem('evaluationFeedback', data.feedback);
+      await fetch('/end-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId })
+      });
 
-      typingIndicator.classList.remove('hidden');
+      localStorage.removeItem('sessionId');
 
-      try {
-        const response = await fetch('/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `message=${encodeURIComponent(message)}`,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP Error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        typingIndicator.classList.add('hidden');
-        appendMessage('Bot', data.response);
-      } catch (error) {
-        typingIndicator.classList.add('hidden');
-        console.error('Error sending message:', error);
-        appendMessage('Bot', "Your message was not deliveredy.");
-      }
-    };
-
-    const appendMessage = (sender, message) => {
-      const messageDiv = document.createElement('div');
-      messageDiv.className =
-        sender === 'Agent'
-          ? 'message left'
-          : 'message right';
-      messageDiv.innerHTML = `${message}`;
-      chatBox.appendChild(messageDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    };
-  </script>
+      window.location.href = '/evaluate';
+    } else {
+      alert("Evaluation failed.");
+    }
+  } catch (error) {
+    console.error("Evaluation error:");
+    alert("Something went wrong during evaluation.");
+  }
+});
+</script>
 </body>
 
 </html>

@@ -1,37 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Call Evaluation Results</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="javascript/end.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agent Trainer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="javascript/navbar.js"></script>
+  <script defer src="javascript/end.js"></script>
 </head>
-<body class="font-sans">
-    <div class="container mx-auto max-w-xl mt-8 p-6">
-        <h1 class="text-2xl font-bold text-center mb-6">Call Evaluation Results</h1>
+<body class="font-sans min-h-screenflex flex-col">
 
-        <div id="evaluation-results" class="bg-white p-6 rounded-lg shadow-lg">
-            <p><strong>Evaluation Summary:</strong></p>
-            <div id="evaluation-feedback" class="mt-4 text-gray-700">
-                <!-- This will display the evaluation results -->
-                <p id="feedback-text"></p>
-            </div>
-        </div>
-
-        <div class="mt-8 text-center">
-            <a href="/home" class="bg-indigo-600 text-white py-2 px-6 rounded-lg">Back to Home</a>
-        </div>
+  <!-- Navbar with Evaluation Context -->
+  <nav class="bg-indigo-700 shadow-lg p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="/home" class="text-3xl font-bold text-white">Agent Trainer</a>
+      <div class="text-white text-lg">
+        <p class="font-semibold">Agent: <span class="font-medium">Onwabe Zibeke</span></p>
+        <!-- Evaluation date -->
+        <p class="text-sm">Evaluated on <span id="eval-date">--/--/----</span></p>
+      </div>
+      <button onclick="window.location.href='/'"
+              class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow transition">
+        Logout
+      </button>
     </div>
+  </nav>
 
-    <script>
-        // Grab the evaluationResults from the query string
-        const urlParams = new URLSearchParams(window.location.search);
-        const evaluationResults = urlParams.get('evaluationResults') || 'No evaluation available. You did not take the call.';
-        
-        // Insert the feedback into the page
-        document.getElementById('feedback-text').textContent = evaluationResults;
-    </script>
+  <!-- Feedback Section with Details -->
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <div class="bg-white p-8 rounded-xl max-w-3xl mx-auto space-y-6">
+      <h2 class="text-2xl font-bold text-indigo-700">📝 Chat Evaluation Summary</h2>
+
+      <!-- Overall Score Display -->
+      <div class="flex items-center space-x-3">
+        <span class="text-lg font-semibold">Overall Score:</span>
+        <span id="overall-score" class="text-4xl font-extrabold text-green-600">--</span>
+      </div>
+
+      <!-- Evaluation Feedback Text -->
+      <div id="feedback" class="whitespace-pre-wrap text-gray-800 text-base leading-relaxed"></div>
+
+      <!-- Tags or Categories -->
+      <div class="flex flex-wrap gap-2">
+        <span class="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm">Empathy</span>
+        <span class="bg-blue-200 text-blue-800 px-3 py-1 rounded-full text-sm">Clarity</span>
+        <span class="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm">Resolution</span>
+      </div>
+
+      <!-- Return Button -->
+      <button id="return-home"
+              class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-full shadow transition hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300">
+        Close
+      </button>
+    </div>
+  </main>
+ <script>
+     const feedbackText = localStorage.getItem('evaluationFeedback') || "";
+     // Example parse 'Score: 8/10'
+     const scoreMatch = feedbackText.match(/score.*?(\d+)\/10/i);
+     if(scoreMatch) {
+     document.getElementById('overall-score').innerText = scoreMatch[1] + '/10';
+        }
+     document.getElementById('eval-date').innerText = new Date().toLocaleDateString();
+
+    const feedback = localStorage.getItem('evaluationFeedback');
+    if (feedback) {
+      document.getElementById('feedback').innerText = feedback;
+    } else {
+      document.getElementById('feedback').innerText = "No feedback available.";
+    }
+  </script>
 </body>
 </html>
-
